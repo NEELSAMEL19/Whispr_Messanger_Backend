@@ -1,0 +1,39 @@
+{
+  "name": "whispr_messanger_backend",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NEELSAMEL19/Whispr_Messanger_Backend.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NEELSAMEL19/Whispr_Messanger_Backend/issues"
+  },
+  "homepage": "https://github.com/NEELSAMEL19/Whispr_Messanger_Backend#readme",
+  "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.18.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.2"
+  }
+}
