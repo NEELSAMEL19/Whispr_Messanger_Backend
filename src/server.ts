@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import connectDB from "./config/db.js";
-import app from "./app.js";
+import app, { corsOrigins } from "./app.js";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { registerMessageSocket } from "./modules/messages/message.socket.js";
@@ -10,7 +10,7 @@ const PORT = Number(process.env["PORT"]) || 3030;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["https://whisprmessanger.vercel.app", "http://localhost:5173"],
+    origin: corsOrigins,
     credentials: true,
   },
 });
