@@ -11,8 +11,15 @@ import messageRoutes from "./modules/messages/message.routes.js";
 const app = express();
 app.set("etag", false);
 
-const corsOrigins = [
-  "https://personal-book-manager-vert.vercel.app",
+export const corsOrigins = [
+  ...(
+    process.env["CORS_ORIGINS"] ??
+    process.env["FRONTEND_URL"] ??
+    "https://whisprmessanger.vercel.app"
+  )
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
   "http://localhost:3000",
   "http://localhost:5173",
 ];
