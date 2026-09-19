@@ -6,6 +6,8 @@ export interface IUser extends Document {
   password: string;
   phone: string;
   avatar?: string;
+  isOnline: boolean;
+  lastSeenAt?: Date;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -28,6 +30,11 @@ const userSchema = new mongoose.Schema<IUser>(
     avatar: {
       type: String,
     },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+    lastSeenAt: Date,
   },
   { timestamps: true },
 );

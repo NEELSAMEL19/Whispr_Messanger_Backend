@@ -6,6 +6,7 @@ import {
   registerUserService,
   loginUserService,
   getUserProfileService,
+  searchUsersService,
 } from "./auth.service.js";
 
 const isProduction = process.env["NODE_ENV"] === "production";
@@ -62,6 +63,14 @@ export const getUserProfile = asyncHandler(async (req: AuthRequest, res: Respons
     message: "Authenticated user fetched successfully",
     data: user,
   });
+});
+
+export const searchUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const currentUserId = req.user?._id ?? "";
+  const query = typeof req.query["q"] === "string" ? req.query["q"] : "";
+  const users = await searchUsersService(currentUserId, query);
+
+  res.json({ success: true, data: users });
 });
 
 export const logoutUser = asyncHandler(async (_req: Request, res: Response) => {
