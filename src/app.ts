@@ -14,6 +14,7 @@ app.set("etag", false);
 const corsOrigins = [
   "https://personal-book-manager-vert.vercel.app",
   "http://localhost:3000",
+  "http://localhost:5173",
 ];
 
 app.use(

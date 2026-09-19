@@ -9,20 +9,23 @@ import { registerMessageSocket } from "./modules/messages/message.socket.js";
 const PORT = Number(process.env["PORT"]) || 3030;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-	cors: {
-		origin: ["https://personal-book-manager-vert.vercel.app", "http://localhost:3000"],
-		credentials: true,
-	},
+  cors: {
+    origin: ["https://whisprmessanger.vercel.app", "http://localhost:5173"],
+    credentials: true,
+  },
 });
-registerMessageSocket(io);
-
 const startServer = async () => {
-	await connectDB();
-	httpServer.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+  await connectDB();
+
+  registerMessageSocket(io);
+  httpServer.listen(PORT, () =>
+    console.log(`✅ Server running on port ${PORT}`),
+  );
 };
 
 startServer().catch((error: unknown) => {
-	const message = error instanceof Error ? error.message : "Unknown startup error";
-	console.error(`❌ Server startup failed: ${message}`);
-	process.exit(1);
+  const message =
+    error instanceof Error ? error.message : "Unknown startup error";
+  console.error(`❌ Server startup failed: ${message}`);
+  process.exit(1);
 });

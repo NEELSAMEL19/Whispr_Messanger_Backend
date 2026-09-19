@@ -9,6 +9,7 @@ export interface IMessage extends Document {
   readAt?: Date;
   editedAt?: Date;
   deletedAt?: Date;
+  hiddenFor: mongoose.Types.ObjectId[];
   createdAt: Date;
 }
 
@@ -43,6 +44,7 @@ const messageSchema = new Schema<IMessage>(
     readAt: Date,
     editedAt: Date,
     deletedAt: Date,
+    hiddenFor: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   {
     timestamps: true,
@@ -51,5 +53,8 @@ const messageSchema = new Schema<IMessage>(
 
 messageSchema.index({ sender: 1, receiver: 1, createdAt: -1 });
 messageSchema.index({ receiver: 1, sender: 1, createdAt: -1 });
+messageSchema.index({ sender: 1, receiver: 1, hiddenFor: 1, createdAt: -1 });
+messageSchema.index({ receiver: 1, sender: 1, hiddenFor: 1, createdAt: -1 });
+messageSchema.index({ receiver: 1, status: 1, hiddenFor: 1, createdAt: 1 });
 
 export const Message = mongoose.model<IMessage>("Message", messageSchema);

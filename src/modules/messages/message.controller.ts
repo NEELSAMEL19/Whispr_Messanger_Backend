@@ -18,6 +18,67 @@ const getUserId = (req: AuthRequest) => {
 const isValidId = (id: string) => mongoose.Types.ObjectId.isValid(id);
 const getParam = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
 
+export const getConversations = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const currentUserId = getUserId(req);
+  const query = typeof req.query["q"] === "string" ? req.query["q"].trim() : "";
+  const currentObjectId = new mongoose.Types.ObjectId(currentUserId);
+
+  const conversations = await Message.aggregate([
+    {
+      $match: {
+        hiddenFor: { $ne: currentObjectId },
+        $or: [{ sender: currentObjectId }, { receiver: currentObjectId }],
+      },
+    },
+    { $sort: { createdAt: -1 } },
+    {
+      $group: {
+        _id: {
+          $cond: [{ $eq: ["$sender", currentObjectId] }, "$receiver", "$sender"],
+        },
+        latestMessage: { $first: "$$ROOT" },
+        unreadCount: {
+          $sum: {
+            $cond: [
+              { $and: [{ $eq: ["$receiver", currentObjectId] }, { $ne: ["$status", "read"] }] },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    ...(query
+      ? [{ $match: { "user.phone": { $regex: query, $options: "i" } } }]
+      : []),
+    {
+      $project: {
+        _id: "$user._id",
+        name: "$user.name",
+        email: "$user.email",
+        phone: "$user.phone",
+        avatar: "$user.avatar",
+        isOnline: "$user.isOnline",
+        lastSeenAt: "$user.lastSeenAt",
+        latestMessage: 1,
+        unreadCount: 1,
+      },
+    },
+    { $sort: { "latestMessage.createdAt": -1 } },
+  ]);
+
+  res.json({ success: true, data: conversations });
+});
+
 export const getConversation = asyncHandler(async (req: AuthRequest, res: Response) => {
   const currentUserId = getUserId(req);
   const otherUserId = getParam(req.params["userId"]);
@@ -27,6 +88,7 @@ export const getConversation = asyncHandler(async (req: AuthRequest, res: Respon
   if (!otherUserId || !isValidId(otherUserId)) throw new AppError("Invalid user id", 400);
 
   const messages = await Message.find({
+    hiddenFor: { $ne: currentUserId },
     $or: [
       { sender: currentUserId, receiver: otherUserId },
       { sender: otherUserId, receiver: currentUserId },
@@ -101,4 +163,23 @@ export const markConversationRead = asyncHandler(async (req: AuthRequest, res: R
     { status: "read", readAt: new Date(), deliveredAt: new Date() },
   );
   res.json({ success: true, message: "Conversation marked as read" });
+});
+
+export const deleteConversation = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const currentUserId = getUserId(req);
+  const otherUserId = getParam(req.params["userId"]);
+
+  if (!otherUserId || !isValidId(otherUserId)) throw new AppError("Invalid user id", 400);
+
+  await Message.updateMany(
+    {
+      $or: [
+        { sender: currentUserId, receiver: otherUserId },
+        { sender: otherUserId, receiver: currentUserId },
+      ],
+    },
+    { $addToSet: { hiddenFor: new mongoose.Types.ObjectId(currentUserId) } },
+  );
+
+  res.json({ success: true, message: "Conversation deleted for this user" });
 });
