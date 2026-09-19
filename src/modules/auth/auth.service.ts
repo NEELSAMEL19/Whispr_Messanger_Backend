@@ -61,3 +61,20 @@ export const getUserProfileService = async (userId: string) => {
   if (!user) throw new AppError("User not found", 404);
   return user;
 };
+
+export const searchUsersService = async (currentUserId: string, query: string) => {
+  const normalizedQuery = query.trim();
+  if (!normalizedQuery) return [];
+
+  const escapedQuery = normalizedQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const filter = {
+    _id: { $ne: currentUserId },
+    phone: { $regex: escapedQuery, $options: "i" },
+  };
+
+  return User.find(filter)
+    .select("name email phone avatar isOnline lastSeenAt")
+    .sort({ name: 1 })
+    .limit(50)
+    .lean();
+};

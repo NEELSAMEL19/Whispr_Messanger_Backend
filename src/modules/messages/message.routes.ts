@@ -2,7 +2,9 @@ import express from "express";
 import { protect } from "../../common/middlewares/auth.middleware.js";
 import {
   deleteMessage,
+  deleteConversation,
   editMessage,
+  getConversations,
   getConversation,
   markConversationRead,
   sendMessage,
@@ -11,6 +13,8 @@ import {
 const router = express.Router();
 
 router.use(protect);
+router.get("/conversations", getConversations);
+router.delete("/:userId", deleteConversation);
 router.get("/:userId", getConversation);
 router.post("/:userId", sendMessage);
 router.patch("/:userId/read", markConversationRead);
