@@ -6,6 +6,7 @@ import {
   errorHandler,
 } from "./common/middlewares/error.middleware.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import messageRoutes from "./modules/messages/message.routes.js";
 
 const app = express();
 app.set("etag", false);
@@ -30,6 +31,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
